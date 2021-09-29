@@ -12,7 +12,7 @@ use serenity::{
 };
 use songbird::SerenityInit;
 use std::{env, sync::Arc};
-use structures::{Command, Queue, Responses};
+use structures::{Queue, Responses};
 
 struct Handler;
 
@@ -25,21 +25,21 @@ impl EventHandler for Handler {
 		};
 
 		let result = if interaction.guild_id.is_none() {
-			interaction.ephemeral(&ctx.http, "Commands are disabled in DMs!")
+			interaction.ephemeral(&ctx.http, "Commands are disabled in DMs!").await
 		} else {
 			match interaction.data.name.as_str() {
-				"clear" => commands::ClearCommand::run(ctx, interaction),
-				"leave" => commands::LeaveCommand::run(ctx, interaction),
-				"now-playing" => commands::NowPlayingCommand::run(ctx, interaction),
-				"play" => commands::PlayCommand::run(ctx, interaction),
-				"queue" => commands::QueueCommand::run(ctx, interaction),
-				"remove" => commands::RemoveCommand::run(ctx, interaction),
-				"skip" => commands::SkipCommand::run(ctx, interaction),
-				_ => interaction.ephemeral(&ctx.http, "Not implemented yet!"),
+				"clear" => commands::clear::run(ctx, interaction).await,
+				"leave" => commands::leave::run(ctx, interaction).await,
+				"now-playing" => commands::now_playing::run(ctx, interaction).await,
+				"play" => commands::play::run(ctx, interaction).await,
+				"queue" => commands::queue::run(ctx, interaction).await,
+				"remove" => commands::remove::run(ctx, interaction).await,
+				"skip" => commands::skip::run(ctx, interaction).await,
+				_ => interaction.ephemeral(&ctx.http, "Not implemented yet!").await,
 			}
 		};
 
-		if let Err(error) = result.await {
+		if let Err(error) = result {
 			eprintln!("Error replying to command: {}", error);
 		}
 	}
