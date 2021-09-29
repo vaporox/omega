@@ -21,7 +21,7 @@ impl EventHandler for Handler {
 	async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
 		let interaction = match interaction {
 			Interaction::ApplicationCommand(command) => command,
-			_ => unreachable!(),
+			_ => return,
 		};
 
 		let result = if interaction.guild_id.is_none() {
