@@ -1,0 +1,39 @@
+[[commands]]
+name = "clear"
+description = "Clears the current queue"
+
+[[commands]]
+name = "leave"
+description = "Leaves the voice channel"
+
+[[commands]]
+name = "now-playing"
+description = "Shows the currently playing song"
+
+[[commands]]
+name = "play"
+description = "Adds a song to the queue"
+
+[[commands.options]]
+name = "song"
+description = "The song to play"
+type = 3
+required = true
+
+[[commands]]
+name = "queue"
+description = "Shows the current queue"
+
+[[commands]]
+name = "remove"
+description = "Removes a song from the queue"
+
+[[commands.options]]
+name = "position"
+description = "The position of the song"
+type = 4
+required = true
+
+[[commands]]
+name = "skip"
+description = "Skips the currently playing song"

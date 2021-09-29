@@ -1,0 +1,24 @@
+[package]
+name = "omega"
+version = "0.1.0"
+authors = ["Vaporox"]
+edition = "2018"
+description = "The best Discord music bot out there"
+repository = "https://github.com/vaporox/omega"
+license = "ISC"
+
+[dependencies]
+dashmap = "4"
+dotenv = "0"
+serde_json = "1"
+songbird = "0"
+toml = "0"
+
+[dependencies.serenity]
+version = "0"
+default-features = false
+features = ["cache", "client", "gateway", "rustls_backend", "model", "unstable_discord_api"]
+
+[dependencies.tokio]
+version = "1"
+features = ["macros", "rt-multi-thread"]
