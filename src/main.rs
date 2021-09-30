@@ -12,7 +12,7 @@ use serenity::{
 };
 use songbird::SerenityInit;
 use std::{env, sync::Arc};
-use structures::{Queue, Responses};
+use structures::*;
 
 struct Handler;
 

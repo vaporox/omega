@@ -4,18 +4,8 @@ use serenity::{client::Context, model::interactions::application_command::Applic
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
 	let guild_id = interaction.guild_id.unwrap();
 
-	let voice_channel = ctx
-		.cache
-		.guild_field(guild_id, |guild| {
-			guild
-				.voice_states
-				.get(&interaction.user.id)
-				.and_then(|state| state.channel_id)
-		})
-		.await;
-
-	let voice_channel = match voice_channel {
-		Some(Some(channel_id)) => channel_id,
+	let voice_channel_id = match interaction.member.as_ref().unwrap().voice_channel_id(&ctx).await {
+		Some(channel_id) => channel_id,
 		_ => return interaction.reply(&ctx.http, "You're not in a voice channel!").await,
 	};
 
@@ -23,12 +13,12 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 	let request = option.value.as_ref().unwrap().as_str().unwrap();
 
 	let queue = Queue::get(&ctx).await;
-	queue.insert(guild_id, interaction.channel_id, voice_channel, request.into());
+	queue.insert(guild_id, interaction.channel_id, voice_channel_id, request.into());
 
 	let content = if queue.entry(guild_id).unwrap().requests.len() == 1 {
 		let manager = songbird::get(&ctx).await.unwrap();
 
-		let (call, result) = manager.join(guild_id, voice_channel).await;
+		let (call, result) = manager.join(guild_id, voice_channel_id).await;
 
 		if let Err(error) = result {
 			eprintln!("Error joining voice channel: {}", error);

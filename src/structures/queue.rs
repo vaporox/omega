@@ -8,8 +8,8 @@ use std::{collections::VecDeque, sync::Arc};
 
 pub struct QueueEntry {
 	pub requests: VecDeque<String>,
-	pub text_channel: ChannelId,
-	pub voice_channel: ChannelId,
+	pub text_channel_id: ChannelId,
+	pub voice_channel_id: ChannelId,
 }
 
 #[derive(Default)]
@@ -33,11 +33,11 @@ impl Queue {
 		data.get::<Self>().unwrap().clone()
 	}
 
-	pub fn insert(&self, guild_id: GuildId, text_channel: ChannelId, voice_channel: ChannelId, request: String) {
+	pub fn insert(&self, guild_id: GuildId, text_channel_id: ChannelId, voice_channel_id: ChannelId, request: String) {
 		let mut entry = self.entries.entry(guild_id).or_insert(QueueEntry {
 			requests: VecDeque::new(),
-			text_channel,
-			voice_channel,
+			text_channel_id,
+			voice_channel_id,
 		});
 
 		entry.requests.push_back(request);
