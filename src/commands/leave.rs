@@ -11,8 +11,6 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 		.await
 		.unwrap();
 
-	Queue::get(&ctx).await.clear(guild_id);
-
 	let content = if connected {
 		let manager = songbird::get(&ctx).await.unwrap();
 

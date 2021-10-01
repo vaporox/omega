@@ -6,7 +6,9 @@ use serenity::{
 	async_trait,
 	model::{
 		gateway::{Activity, Ready},
+		id::GuildId,
 		interactions::Interaction,
+		prelude::VoiceState,
 	},
 	prelude::*,
 };
@@ -57,6 +59,15 @@ impl EventHandler for Handler {
 		}
 
 		println!("{} is ready!\nGuilds: {}", ready.user.name, ready.guilds.len());
+	}
+
+	async fn voice_state_update(&self, ctx: Context, _: Option<GuildId>, _: Option<VoiceState>, state: VoiceState) {
+		if state.user_id != ctx.cache.current_user_id().await || state.channel_id.is_some() {
+			return;
+		}
+
+		let queue = Queue::get(&ctx).await;
+		queue.clear(state.guild_id.unwrap());
 	}
 }
 
