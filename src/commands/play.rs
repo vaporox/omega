@@ -1,4 +1,4 @@
-use crate::structures::*;
+use crate::{helpers::*, structures::*};
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
@@ -19,16 +19,10 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 		let manager = songbird::get(&ctx).await.unwrap();
 
 		let (call, result) = manager.join(guild_id, voice_channel_id).await;
-
-		if let Err(error) = result {
-			eprintln!("Error joining voice channel: {}", error);
-		};
+		result.or_print("join voice channel");
 
 		let mut call = call.lock().await;
-
-		if let Err(error) = call.deafen(true).await {
-			eprintln!("Error deafening the bot: {}", error);
-		}
+		call.deafen(true).await.or_print("deafen the bot");
 
 		match VoiceHandler::play(&mut call, request).await {
 			Some(_) => format!("Now playing: **{}**", request),

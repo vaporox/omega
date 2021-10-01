@@ -1,4 +1,4 @@
-use crate::structures::*;
+use crate::{helpers::*, structures::*};
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {

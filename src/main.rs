@@ -1,6 +1,8 @@
 mod commands;
+mod helpers;
 mod structures;
 
+use helpers::*;
 use serde_json::Value;
 use serenity::{
 	async_trait,
@@ -41,9 +43,7 @@ impl EventHandler for Handler {
 			}
 		};
 
-		if let Err(error) = result {
-			eprintln!("Error replying to command: {}", error);
-		}
+		result.or_print("reply to command");
 	}
 
 	async fn ready(&self, ctx: Context, ready: Ready) {
@@ -53,9 +53,10 @@ impl EventHandler for Handler {
 			let data = toml::from_str::<Value>(include_str!("../commands.toml")).unwrap();
 			let commands = data.pointer("/commands").unwrap();
 
-			if let Err(error) = ctx.http.create_guild_application_commands(guild_id, commands).await {
-				eprintln!("Error setting commands: {}", error);
-			};
+			ctx.http
+				.create_guild_application_commands(guild_id, commands)
+				.await
+				.or_print("set commands");
 		}
 
 		println!("{} is ready!\nGuilds: {}", ready.user.name, ready.guilds.len());
@@ -90,7 +91,5 @@ async fn main() {
 		data.insert::<Queue>(Arc::new(Queue::default()));
 	}
 
-	if let Err(error) = client.start().await {
-		eprintln!("Error starting client: {}", error);
-	}
+	client.start().await.or_print("start client");
 }
