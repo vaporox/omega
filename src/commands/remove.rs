@@ -1,4 +1,4 @@
-use crate::{helpers::*, structures::*};
+use crate::helpers::*;
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 use std::convert::TryInto;
 
@@ -10,11 +10,23 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 		_ => return interaction.reply(&ctx.http, "Invalid position!").await,
 	};
 
-	let queue = Queue::get(&ctx).await;
+	let manager = songbird::get(&ctx).await.unwrap();
 
-	let content = match queue.remove(interaction.guild_id.unwrap(), position - 1) {
-		Some(removed) => format!("Removed from the queue: **{}**", removed),
-		None => "Invalid position!".into(),
+	let call = match manager.get(interaction.guild_id.unwrap()) {
+		Some(call) => call,
+		None => return interaction.reply(&ctx.http, "I'm not in a voice channel!").await,
+	};
+
+	let content = {
+		let call = call.lock().await;
+
+		match call.queue().dequeue(position - 1) {
+			Some(removed) => format!(
+				"Removed from the queue: **{}**",
+				removed.metadata().title.as_ref().unwrap()
+			),
+			None => "Invalid position!".into(),
+		}
 	};
 
 	interaction.reply(&ctx.http, content).await

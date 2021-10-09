@@ -1,5 +1,7 @@
-use crate::{helpers::*, structures::*};
+use crate::handlers::VoiceHandler;
+use crate::helpers::*;
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
+use songbird::{Event, TrackEvent};
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
 	let guild_id = interaction.guild_id.unwrap();
@@ -12,24 +14,39 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 	let option = interaction.data.options.get(0).unwrap();
 	let request = option.value.as_ref().unwrap().as_str().unwrap();
 
-	let queue = Queue::get(&ctx).await;
-	queue.insert(guild_id, interaction.channel_id, voice_channel_id, request.into());
+	let input = match songbird::ytdl(request).await {
+		Ok(input) => input,
+		_ => return interaction.reply(&ctx.http, "Invalid URL!").await,
+	};
 
-	let content = if queue.entry(guild_id).unwrap().requests.len() == 1 {
-		let manager = songbird::get(&ctx).await.unwrap();
+	let manager = songbird::get(&ctx).await.unwrap();
 
-		let (call, result) = manager.join(guild_id, voice_channel_id).await;
-		result.or_print("join voice channel");
+	let content = if let Some(call) = manager.get(guild_id) {
+		let content = format!("Added **{}** to the queue!", input.metadata.title.as_deref().unwrap());
 
 		let mut call = call.lock().await;
-		call.deafen(true).await.or_print("deafen the bot");
+		call.enqueue_source(input);
 
-		match VoiceHandler::play(&mut call, request).await {
-			Some(_) => format!("Now playing: **{}**", request),
-			None => "Not a valid URL!".into(),
-		}
+		content
 	} else {
-		format!("Added to the queue: **{}**", request)
+		let (arc, result) = manager.join(guild_id, voice_channel_id).await;
+		result.or_print("join voice channel");
+
+		let content = format!("Now playing: **{}**", input.metadata.title.as_ref().unwrap());
+
+		let mut call = arc.lock().await;
+		call.enqueue_source(input);
+
+		call.add_global_event(
+			Event::Track(TrackEvent::End),
+			VoiceHandler {
+				call: arc.clone(),
+				channel_id: interaction.channel_id,
+				http: ctx.http.clone(),
+			},
+		);
+
+		content
 	};
 
 	interaction.reply(&ctx.http, content).await

@@ -8,16 +8,18 @@ repository = "https://github.com/vaporox/omega"
 license = "ISC"
 
 [dependencies]
-dashmap = "4"
 dotenv = "0"
 serde_json = "1"
-songbird = "0"
 toml = "0"
 
 [dependencies.serenity]
 version = "0"
 default-features = false
 features = ["cache", "client", "gateway", "rustls_backend", "model", "unstable_discord_api"]
+
+[dependencies.songbird]
+version = "0"
+features = ["builtin-queue"]
 
 [dependencies.tokio]
 version = "1"

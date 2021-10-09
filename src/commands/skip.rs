@@ -1,26 +1,26 @@
-use crate::{helpers::*, structures::*};
+use crate::helpers::*;
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
-	let guild_id = interaction.guild_id.unwrap();
-	let queue = Queue::get(&ctx).await;
-
-	let content = match queue.skip(guild_id) {
-		Some(skipped) => format!("Skipped: **{}**", skipped),
-		None => "There is nothing playing!".into(),
-	};
-
 	let manager = songbird::get(&ctx).await.unwrap();
 
-	if let Some(call) = manager.get(guild_id) {
-		let mut call = call.lock().await;
+	let call = match manager.get(interaction.guild_id.unwrap()) {
+		Some(call) => call,
+		None => return interaction.reply(&ctx.http, "I'm not in a voice channel!").await,
+	};
 
-		if let Some(entry) = queue.entry(guild_id) {
-			VoiceHandler::play(&mut call, &entry.requests[0]).await;
-		} else {
-			call.stop();
+	let content = {
+		let call = call.lock().await;
+		let queue = call.queue();
+
+		match queue.current() {
+			Some(current) => {
+				current.stop().or_print("skip track");
+				format!("Skipped **{}**!", current.metadata().title.as_ref().unwrap())
+			}
+			None => "There is nothing playing!".into(),
 		}
-	}
+	};
 
 	interaction.reply(&ctx.http, content).await
 }

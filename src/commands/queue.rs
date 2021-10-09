@@ -1,17 +1,26 @@
-use crate::{helpers::*, structures::*};
+use crate::helpers::*;
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
-	let queue = Queue::get(&ctx).await;
+	let manager = songbird::get(&ctx).await.unwrap();
 
-	let description = match queue.entry(interaction.guild_id.unwrap()) {
-		Some(entry) => entry
-			.requests
-			.iter()
-			.enumerate()
-			.map(|(i, e)| format!("`{}.` {}\n", i + 1, e))
-			.collect::<String>(),
-		None => "The queue is empty!".into(),
+	let call = match manager.get(interaction.guild_id.unwrap()) {
+		Some(call) => call,
+		None => return interaction.reply(&ctx.http, "I'm not in a voice channel!").await,
+	};
+
+	let description = {
+		let call = call.lock().await;
+		let queue = call.queue().current_queue();
+
+		match queue.len() {
+			0 => "The queue is empty!".into(),
+			_ => queue
+				.iter()
+				.enumerate()
+				.map(|(i, e)| format!("`{}.` {}\n", i + 1, e.metadata().title.as_ref().unwrap()))
+				.collect::<String>(),
+		}
 	};
 
 	interaction
