@@ -1,6 +1,5 @@
 use crate::helpers::*;
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
-use std::convert::TryInto;
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
 	let option = interaction.data.options.get(0).unwrap();
