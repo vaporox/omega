@@ -17,33 +17,35 @@ impl EventHandler for Handler {
 			_ => return,
 		};
 
-		let result = if interaction.guild_id.is_none() {
-			interaction.ephemeral(&ctx.http, "Commands are disabled in DMs!").await
-		} else {
-			match interaction.data.name.as_str() {
-				"clear" => commands::clear::run(ctx, interaction).await,
-				"leave" => commands::leave::run(ctx, interaction).await,
-				"now-playing" => commands::now_playing::run(ctx, interaction).await,
-				"play" => commands::play::run(ctx, interaction).await,
-				"queue" => commands::queue::run(ctx, interaction).await,
-				"remove" => commands::remove::run(ctx, interaction).await,
-				"skip" => commands::skip::run(ctx, interaction).await,
-				_ => interaction.ephemeral(&ctx.http, "Not implemented yet!").await,
-			}
+		interaction.defer_reply(&ctx.http).await.unwrap();
+
+		let result = match interaction.data.name.as_str() {
+			"clear" => commands::clear::run(ctx, interaction).await,
+			"leave" => commands::leave::run(ctx, interaction).await,
+			"now-playing" => commands::now_playing::run(ctx, interaction).await,
+			"play" => commands::play::run(ctx, interaction).await,
+			"queue" => commands::queue::run(ctx, interaction).await,
+			"remove" => commands::remove::run(ctx, interaction).await,
+			"skip" => commands::skip::run(ctx, interaction).await,
+			_ => return,
 		};
 
 		result.or_print("reply to command");
 	}
 
 	async fn ready(&self, ctx: Context, ready: Ready) {
-		if let Ok(Ok(guild_id)) = env::var("GUILD_ID").map(|var| var.parse::<u64>()) {
+		if let Ok(guild_ids) = env::var("GUILD_IDS") {
 			let data = toml::from_str::<Value>(include_str!("../../commands.toml")).unwrap();
 			let commands = data.pointer("/commands").unwrap();
 
-			ctx.http
-				.create_guild_application_commands(guild_id, commands)
-				.await
-				.or_print("set commands");
+			for guild_id in guild_ids.split(',') {
+				let guild_id = guild_id.parse().unwrap();
+
+				ctx.http
+					.create_guild_application_commands(guild_id, commands)
+					.await
+					.or_print("set commands");
+			}
 		}
 
 		println!("{} is listening to {} guilds!", ready.user.name, ready.guilds.len());
