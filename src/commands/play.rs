@@ -13,9 +13,9 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 	let option = interaction.data.options.get(0).unwrap();
 	let request = option.value.as_ref().unwrap().as_str().unwrap();
 
-	let input = match songbird::ytdl(request).await {
+	let input = match songbird::input::ytdl_search(request).await {
 		Ok(input) => input,
-		_ => return interaction.reply(&ctx.http, "Invalid URL!").await,
+		_ => return interaction.reply(&ctx.http, "Couldn't find a video!").await,
 	};
 
 	let manager = songbird::get(&ctx).await.unwrap();
@@ -34,6 +34,8 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 		let content = format!("Now playing: **{}**", input.metadata.title.as_ref().unwrap());
 
 		let mut call = arc.lock().await;
+
+		call.deafen(true).await.unwrap();
 		call.enqueue_source(input);
 
 		call.add_global_event(
