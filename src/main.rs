@@ -1,6 +1,7 @@
 mod commands;
 mod handlers;
 mod helpers;
+mod macros;
 
 use handlers::Handler;
 use helpers::ResultHelpers;

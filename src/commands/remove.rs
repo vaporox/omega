@@ -2,18 +2,13 @@ use crate::helpers::*;
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
+	let call = crate::get_call!(ctx, interaction);
+
 	let option = interaction.data.options.get(0).unwrap();
 
 	let position: usize = match option.value.as_ref().unwrap().as_u64().and_then(|e| e.try_into().ok()) {
 		Some(position) if position >= 1 => position,
 		_ => return interaction.reply(&ctx.http, "Invalid position!").await,
-	};
-
-	let manager = songbird::get(&ctx).await.unwrap();
-
-	let call = match manager.get(interaction.guild_id.unwrap()) {
-		Some(call) => call,
-		None => return interaction.reply(&ctx.http, "I'm not in a voice channel!").await,
 	};
 
 	let content = {
