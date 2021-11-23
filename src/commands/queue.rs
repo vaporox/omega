@@ -13,17 +13,18 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 		let call = call.lock().await;
 		let queue = call.queue().current_queue();
 
-		match queue.len() {
-			0 => "The queue is empty!".into(),
-			_ => queue
-				.iter()
-				.enumerate()
-				.map(|(i, e)| format!("`{}.` {}\n", i + 1, e.metadata().title.as_ref().unwrap()))
-				.collect::<String>(),
-		}
+		queue
+			.iter()
+			.enumerate()
+			.map(|(i, e)| format!("`{}.` {}\n", i + 1, e.metadata().title.as_ref().unwrap()))
+			.collect::<String>()
 	};
 
-	interaction
-		.embed(&ctx.http, |embed| embed.title("Queue").description(description))
-		.await
+	if description.is_empty() {
+		interaction.reply(&ctx.http, "There is nothing playing!").await
+	} else {
+		interaction
+			.embed(&ctx.http, |embed| embed.title("Queue").description(description))
+			.await
+	}
 }

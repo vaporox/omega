@@ -1,8 +1,7 @@
+use crate::helpers::ResultHelpers;
 use serenity::{async_trait, http::Http, model::id::ChannelId, prelude::Mutex};
 use songbird::{Call, Event, EventContext, EventHandler};
 use std::sync::Arc;
-
-use crate::helpers::ResultHelpers;
 
 pub struct VoiceHandler {
 	pub call: Arc<Mutex<Call>>,

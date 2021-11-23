@@ -39,12 +39,12 @@ impl EventHandler for Handler {
 			let commands = data.pointer("/commands").unwrap();
 
 			for guild_id in guild_ids.split(',') {
-				let guild_id = guild_id.parse().unwrap();
-
-				ctx.http
-					.create_guild_application_commands(guild_id, commands)
-					.await
-					.or_print("set commands");
+				if let Ok(guild_id) = guild_id.parse() {
+					ctx.http
+						.create_guild_application_commands(guild_id, commands)
+						.await
+						.or_print("set commands");
+				}
 			}
 		}
 

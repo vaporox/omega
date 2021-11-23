@@ -1,5 +1,4 @@
-use crate::handlers::VoiceHandler;
-use crate::helpers::*;
+use crate::{handlers::VoiceHandler, helpers::*};
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 use songbird::{Event, TrackEvent};
 
