@@ -1,4 +1,4 @@
-use crate::helpers::*;
+use crate::{helpers::InteractionHelpers, util::replies};
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
@@ -9,11 +9,8 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 		let queue = call.queue();
 
 		match queue.current() {
-			Some(current) => {
-				current.stop().or_print("skip track");
-				format!("Skipped **{}**!", current.metadata().title.as_ref().unwrap())
-			}
-			None => "There is nothing playing!".into(),
+			Some(current) => replies::skipped_song(current.metadata().title.as_ref().unwrap()),
+			None => replies::EMPTY_QUEUE.into(),
 		}
 	};
 

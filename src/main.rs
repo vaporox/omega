@@ -1,10 +1,9 @@
 mod commands;
 mod handlers;
 mod helpers;
-mod macros;
+mod util;
 
 use handlers::Handler;
-use helpers::ResultHelpers;
 use serenity::client::Client;
 use songbird::SerenityInit;
 use std::env;
@@ -23,5 +22,5 @@ async fn main() {
 		.await
 		.unwrap();
 
-	client.start().await.or_print("start client");
+	client.start().await.unwrap();
 }

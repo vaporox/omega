@@ -1,4 +1,3 @@
-use crate::helpers::ResultHelpers;
 use serenity::{
 	async_trait,
 	builder::CreateEmbed,
@@ -26,12 +25,12 @@ impl InteractionHelpers for ApplicationCommandInteraction {
 	async fn embed<F: FnOnce(&mut CreateEmbed) -> &mut CreateEmbed + Send>(&self, http: &Http, f: F) -> Result<()> {
 		self.create_followup_message(http, |data| data.create_embed(f))
 			.await
-			.void()
+			.map(|_| ())
 	}
 
 	async fn reply<T: ToString + Send>(&self, http: &Http, content: T) -> Result<()> {
 		self.create_followup_message(http, |data| data.content(content))
 			.await
-			.void()
+			.map(|_| ())
 	}
 }

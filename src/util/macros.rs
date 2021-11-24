@@ -5,7 +5,7 @@ macro_rules! get_call {
 
 		match manager.get($interaction.guild_id.unwrap()) {
 			Some(call) => call,
-			None => return $interaction.reply(&$ctx.http, "I'm not in a voice channel!").await,
+			None => return $interaction.reply(&$ctx.http, replies::BOT_NOT_CONNECTED).await,
 		}
 	}};
 }

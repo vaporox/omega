@@ -1,4 +1,4 @@
-use crate::helpers::*;
+use crate::{helpers::InteractionHelpers, util::replies};
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
@@ -8,8 +8,8 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 		let call = call.lock().await;
 
 		match call.queue().current() {
-			Some(handle) => format!("Now playing: **{}**", handle.metadata().title.as_ref().unwrap()),
-			None => "There is nothing playing!".into(),
+			Some(handle) => replies::now_playing(handle.metadata().title.as_ref().unwrap()),
+			None => replies::EMPTY_QUEUE.into(),
 		}
 	};
 

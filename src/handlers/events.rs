@@ -1,4 +1,4 @@
-use crate::{commands, helpers::*};
+use crate::{commands, helpers::InteractionHelpers};
 use serde_json::Value;
 use serenity::{
 	async_trait,
@@ -30,7 +30,7 @@ impl EventHandler for Handler {
 			_ => return,
 		};
 
-		result.or_print("reply to command");
+		result.unwrap();
 	}
 
 	async fn ready(&self, ctx: Context, ready: Ready) {
@@ -43,7 +43,7 @@ impl EventHandler for Handler {
 					ctx.http
 						.create_guild_application_commands(guild_id, commands)
 						.await
-						.or_print("set commands");
+						.unwrap();
 				}
 			}
 		}

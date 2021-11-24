@@ -1,4 +1,8 @@
-use crate::{handlers::VoiceHandler, helpers::*};
+use crate::{
+	handlers::VoiceHandler,
+	helpers::{InteractionHelpers, MemberHelpers},
+	util::replies,
+};
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 use songbird::{Event, TrackEvent};
 
@@ -7,7 +11,7 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 
 	let voice_channel_id = match interaction.member.as_ref().unwrap().voice_channel_id(&ctx).await {
 		Some(channel_id) => channel_id,
-		_ => return interaction.reply(&ctx.http, "You're not in a voice channel!").await,
+		_ => return interaction.reply(&ctx.http, replies::USER_NOT_CONNECTED).await,
 	};
 
 	let option = interaction.data.options.get(0).unwrap();
@@ -15,13 +19,13 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 
 	let input = match songbird::input::ytdl_search(request).await {
 		Ok(input) => input,
-		_ => return interaction.reply(&ctx.http, "Couldn't find a video!").await,
+		_ => return interaction.reply(&ctx.http, replies::NO_VIDEO).await,
 	};
 
 	let manager = songbird::get(&ctx).await.unwrap();
 
 	let content = if let Some(call) = manager.get(guild_id) {
-		let content = format!("Added **{}** to the queue!", input.metadata.title.as_deref().unwrap());
+		let content = replies::added_song(input.metadata.title.as_deref().unwrap());
 
 		let mut call = call.lock().await;
 		call.enqueue_source(input);
@@ -29,9 +33,9 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 		content
 	} else {
 		let (arc, result) = manager.join(guild_id, voice_channel_id).await;
-		result.or_print("join voice channel");
+		result.unwrap();
 
-		let content = format!("Now playing: **{}**", input.metadata.title.as_ref().unwrap());
+		let content = replies::now_playing(input.metadata.title.as_ref().unwrap());
 
 		let mut call = arc.lock().await;
 

@@ -1,4 +1,4 @@
-use crate::helpers::ResultHelpers;
+use crate::util::replies;
 use serenity::{async_trait, http::Http, model::id::ChannelId, prelude::Mutex};
 use songbird::{Call, Event, EventContext, EventHandler};
 use std::sync::Arc;
@@ -18,12 +18,9 @@ impl EventHandler for VoiceHandler {
 		};
 
 		if let Some(handle) = option {
-			let content = format!("Now playing: **{}**", handle.metadata().title.as_ref().unwrap());
+			let content = replies::now_playing(handle.metadata().title.as_ref().unwrap());
 
-			self.channel_id
-				.say(&self.http, content)
-				.await
-				.or_print("send now playing message");
+			self.channel_id.say(&self.http, content).await.unwrap();
 		}
 
 		None

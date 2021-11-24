@@ -1,4 +1,4 @@
-use crate::helpers::*;
+use crate::{helpers::InteractionHelpers, util::replies};
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
@@ -13,11 +13,11 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 
 	let content = if connected {
 		let manager = songbird::get(&ctx).await.unwrap();
-		manager.remove(guild_id).await.or_print("leave voice channel");
+		manager.remove(guild_id).await.unwrap();
 
-		"Left the voice channel!"
+		replies::LEFT_CHANNEL
 	} else {
-		"I'm not in a voice channel!"
+		replies::BOT_NOT_CONNECTED
 	};
 
 	interaction.reply(&ctx.http, content).await

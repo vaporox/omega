@@ -1,4 +1,4 @@
-use crate::helpers::*;
+use crate::{helpers::InteractionHelpers, util::replies};
 use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
 
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
@@ -14,9 +14,9 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 	};
 
 	let content = match cleared {
-		0 => "There is nothing playing!".into(),
-		1 => "Removed **1** title from the queue!".into(),
-		removed => format!("Removed **{}** titles from the queue!", removed),
+		0 => replies::EMPTY_QUEUE.into(),
+		1 => replies::REMOVED_TITLE.into(),
+		_ => replies::cleared_queue(cleared),
 	};
 
 	interaction.reply(&ctx.http, content).await
