@@ -1,7 +1,6 @@
-use crate::{helpers::InteractionHelpers, util::replies};
-use serenity::{client::Context, model::interactions::application_command::ApplicationCommandInteraction, Result};
+use super::prelude::*;
 
-pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<()> {
+pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> CommandResult {
 	let call = crate::get_call!(ctx, interaction);
 
 	let cleared = {
