@@ -1,11 +1,14 @@
 use crate::{commands, helpers::InteractionHelpers};
-use serde_json::Value;
 use serenity::{
 	async_trait,
 	client::{Context, EventHandler},
-	model::{gateway::Ready, id::GuildId, interactions::Interaction, voice::VoiceState},
+	model::{
+		gateway::{Activity, Ready},
+		id::GuildId,
+		interactions::Interaction,
+		voice::VoiceState,
+	},
 };
-use std::env;
 
 pub struct Handler;
 
@@ -34,19 +37,7 @@ impl EventHandler for Handler {
 	}
 
 	async fn ready(&self, ctx: Context, ready: Ready) {
-		if let Ok(guild_ids) = env::var("GUILD_IDS") {
-			let data = toml::from_str::<Value>(include_str!("../../commands.toml")).unwrap();
-			let commands = data.pointer("/commands").unwrap();
-
-			for guild_id in guild_ids.split(',') {
-				if let Ok(guild_id) = guild_id.parse() {
-					ctx.http
-						.create_guild_application_commands(guild_id, commands)
-						.await
-						.unwrap();
-				}
-			}
-		}
+		ctx.set_activity(Activity::listening("/help")).await;
 
 		println!("{} is listening to {} guilds!", ready.user.name, ready.guilds.len());
 	}
