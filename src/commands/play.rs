@@ -3,7 +3,7 @@ use super::prelude::*;
 pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> CommandResult {
 	let guild_id = interaction.guild_id.unwrap();
 
-	let voice_channel_id = match interaction.member.as_ref().unwrap().voice_channel_id(&ctx).await {
+	let voice_channel_id = match interaction.member.as_ref().unwrap().voice_channel_id(&ctx.cache).await {
 		Some(channel_id) => channel_id,
 		_ => return interaction.reply(&ctx.http, replies::USER_NOT_CONNECTED).await,
 	};

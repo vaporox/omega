@@ -37,7 +37,7 @@ impl EventHandler for Handler {
 	}
 
 	async fn ready(&self, ctx: Context, ready: Ready) {
-		ctx.set_activity(Activity::listening("/help")).await;
+		ctx.set_activity(Activity::listening("/play")).await;
 
 		println!("{} is listening to {} guilds!", ready.user.name, ready.guilds.len());
 	}

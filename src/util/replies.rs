@@ -1,6 +1,6 @@
 use songbird::tracks::TrackHandle;
 
-pub const BOT_NOT_CONNECTED: &str = "I'm not connected to a voice channel";
+pub const BOT_NOT_CONNECTED: &str = "I'm not connected to a voice channel!";
 
 pub const EMPTY_QUEUE: &str = "The queue is empty!";
 

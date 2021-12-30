@@ -1,18 +1,18 @@
 use serenity::{
 	async_trait,
-	client::Context,
+	client::Cache,
 	model::{guild::Member, id::ChannelId},
 };
 
 #[async_trait]
 pub trait MemberHelpers {
-	async fn voice_channel_id(&self, ctx: &Context) -> Option<ChannelId>;
+	async fn voice_channel_id(&self, ctx: &Cache) -> Option<ChannelId>;
 }
 
 #[async_trait]
 impl MemberHelpers for Member {
-	async fn voice_channel_id(&self, ctx: &Context) -> Option<ChannelId> {
-		ctx.cache
+	async fn voice_channel_id(&self, cache: &Cache) -> Option<ChannelId> {
+		cache
 			.guild_field(self.guild_id, |guild| {
 				guild.voice_states.get(&self.user.id).and_then(|state| state.channel_id)
 			})
