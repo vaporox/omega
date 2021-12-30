@@ -8,7 +8,10 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Co
 		let queue = call.queue();
 
 		match queue.current() {
-			Some(current) => replies::skipped_song(current.metadata().title.as_ref().unwrap()),
+			Some(current) => {
+				current.stop().unwrap();
+				replies::skipped_song(current.metadata().title.as_ref().unwrap())
+			}
 			None => replies::EMPTY_QUEUE.into(),
 		}
 	};

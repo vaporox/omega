@@ -13,8 +13,19 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Co
 	let content = {
 		let call = call.lock().await;
 
-		match call.queue().dequeue(position - 1) {
-			Some(removed) => replies::removed_song(removed.metadata().title.as_ref().unwrap()),
+		let handle = if position == 1 {
+			call.queue().current()
+		} else {
+			call.queue().dequeue(position - 1).map(|e| e.handle())
+		};
+
+		match handle {
+			Some(removed) => {
+				if position == 1 {
+					removed.stop().unwrap();
+				}
+				replies::removed_song(removed.metadata().title.as_ref().unwrap())
+			}
 			None => replies::INVALID_POSITION.into(),
 		}
 	};
