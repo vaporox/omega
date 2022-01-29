@@ -6,7 +6,7 @@ use serenity::{
 
 #[async_trait]
 pub trait MemberHelpers {
-	async fn voice_channel_id(&self, ctx: &Cache) -> Option<ChannelId>;
+	async fn voice_channel_id(&self, cache: &Cache) -> Option<ChannelId>;
 }
 
 #[async_trait]
