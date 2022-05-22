@@ -1,39 +1,47 @@
 [[commands]]
 name = "clear"
 description = "Clears the current queue"
+dm_permission = false
 
 [[commands]]
 name = "leave"
 description = "Leaves the voice channel"
+dm_permission = false
 
 [[commands]]
 name = "now-playing"
-description = "Shows the currently playing song"
+description = "Shows the currently playing track"
+dm_permission = false
 
 [[commands]]
 name = "play"
-description = "Adds a song to the queue"
+description = "Adds a track to the queue"
+dm_permission = false
 
 [[commands.options]]
-name = "song"
-description = "The song to play"
+name = "track"
+description = "The track to play"
 type = 3
 required = true
 
 [[commands]]
 name = "queue"
 description = "Shows the current queue"
+dm_permission = false
 
 [[commands]]
 name = "remove"
-description = "Removes a song from the queue"
+description = "Removes a track from the queue"
+dm_permission = false
 
 [[commands.options]]
 name = "position"
-description = "The position of the song"
+description = "The position of the track"
 type = 4
 required = true
+min_value = 1
 
 [[commands]]
 name = "skip"
-description = "Skips the currently playing song"
+description = "Skips the currently playing track"
+dm_permission = false

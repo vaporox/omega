@@ -1,13 +1,12 @@
 use super::prelude::*;
 
-pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> CommandResult {
+pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result {
 	let guild_id = interaction.guild_id.unwrap();
-	let user_id = ctx.cache.current_user_id().await;
+	let user_id = ctx.cache.current_user_id();
 
 	let connected = ctx
 		.cache
 		.guild_field(guild_id, |guild| guild.voice_states.contains_key(&user_id))
-		.await
 		.unwrap();
 
 	let content = if connected {
@@ -19,5 +18,5 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Co
 		replies::BOT_NOT_CONNECTED
 	};
 
-	interaction.reply(&ctx.http, content).await
+	interaction.reply(&ctx, content).await
 }

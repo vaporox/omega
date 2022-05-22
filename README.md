@@ -1,4 +1,4 @@
-# Omega
+# omega
 
 The best Discord music bot out there.
 

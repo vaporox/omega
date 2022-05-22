@@ -1,6 +1,6 @@
 use super::prelude::*;
 
-pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> CommandResult {
+pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result {
 	let call = crate::get_call!(ctx, interaction);
 
 	let cleared = {
@@ -12,11 +12,5 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Co
 		len
 	};
 
-	let content = match cleared {
-		0 => replies::EMPTY_QUEUE.into(),
-		1 => replies::REMOVED_TITLE.into(),
-		_ => replies::cleared_queue(cleared),
-	};
-
-	interaction.reply(&ctx.http, content).await
+	interaction.reply(&ctx, replies::cleared_queue(cleared)).await
 }

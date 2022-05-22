@@ -1,33 +1,36 @@
-use crate::commands::prelude::CommandResult;
-use serenity::{
-	async_trait,
-	builder::CreateEmbed,
-	http::Http,
-	model::interactions::{application_command::ApplicationCommandInteraction, InteractionResponseType},
-	Result,
-};
+use crate::commands::prelude::Result;
+use serenity::async_trait;
+use serenity::builder::CreateEmbed;
+use serenity::client::Context;
+use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
 
 #[async_trait]
 pub trait InteractionHelpers {
-	async fn defer_reply(&self, http: &Http) -> Result<()>;
-	async fn embed<F: FnOnce(&mut CreateEmbed) -> &mut CreateEmbed + Send>(&self, http: &Http, f: F) -> CommandResult;
-	async fn reply<T: ToString + Send>(&self, http: &Http, content: T) -> CommandResult;
+	async fn embed<F: FnOnce(&mut CreateEmbed) -> &mut CreateEmbed + Send>(&self, ctx: &Context, f: F) -> Result;
+	async fn reply<T: Into<String> + Send>(&self, ctx: &Context, content: T) -> Result;
 }
 
 #[async_trait]
 impl InteractionHelpers for ApplicationCommandInteraction {
-	async fn defer_reply(&self, http: &Http) -> Result<()> {
-		self.create_interaction_response(http, |response| {
-			response.kind(InteractionResponseType::DeferredChannelMessageWithSource)
+	async fn embed<F: FnOnce(&mut CreateEmbed) -> &mut CreateEmbed + Send>(&self, ctx: &Context, f: F) -> Result {
+		let guild_id = self.guild_id.unwrap();
+		let user_id = ctx.cache.current_user_id();
+		let member = ctx.cache.member(guild_id, user_id).unwrap();
+		let colour = member.colour(&ctx.cache);
+
+		self.create_followup_message(ctx, |data| {
+			data.embed(|embed| {
+				if let Some(colour) = colour {
+					embed.colour(colour);
+				}
+
+				f(embed)
+			})
 		})
 		.await
 	}
 
-	async fn embed<F: FnOnce(&mut CreateEmbed) -> &mut CreateEmbed + Send>(&self, http: &Http, f: F) -> CommandResult {
-		self.create_followup_message(http, |data| data.create_embed(f)).await
-	}
-
-	async fn reply<T: ToString + Send>(&self, http: &Http, content: T) -> CommandResult {
-		self.create_followup_message(http, |data| data.content(content)).await
+	async fn reply<T: Into<String> + Send>(&self, ctx: &Context, content: T) -> Result {
+		self.create_followup_message(ctx, |data| data.content(content)).await
 	}
 }

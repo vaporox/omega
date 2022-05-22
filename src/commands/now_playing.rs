@@ -1,16 +1,14 @@
 use super::prelude::*;
 
-pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> CommandResult {
+pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result {
 	let call = crate::get_call!(ctx, interaction);
 
-	let content = {
-		let call = call.lock().await;
-
-		match call.queue().current() {
-			Some(handle) => replies::now_playing(handle.metadata().title.as_ref().unwrap()),
-			None => replies::EMPTY_QUEUE.into(),
-		}
+	let handle = match call.lock().await.queue().current() {
+		Some(handle) => handle,
+		None => return interaction.reply(&ctx, replies::EMPTY_QUEUE).await,
 	};
 
-	interaction.reply(&ctx.http, content).await
+	interaction
+		.embed(&ctx, replies::track_embed_position(&handle, "Now Playing").await)
+		.await
 }

@@ -1,26 +1,18 @@
-use crate::{commands, helpers::InteractionHelpers};
-use serenity::{
-	async_trait,
-	client::{Context, EventHandler},
-	model::{
-		gateway::{Activity, Ready},
-		id::GuildId,
-		interactions::Interaction,
-		voice::VoiceState,
-	},
-};
+use crate::commands;
+use serenity::async_trait;
+use serenity::client::{Context, EventHandler};
+use serenity::model::application::interaction::Interaction;
+use serenity::model::gateway::{Activity, Ready};
+use serenity::model::voice::VoiceState;
 
 pub struct Handler;
 
 #[async_trait]
 impl EventHandler for Handler {
 	async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
-		let interaction = match interaction {
-			Interaction::ApplicationCommand(command) => command,
-			_ => return,
-		};
+		let interaction = interaction.application_command().unwrap();
 
-		interaction.defer_reply(&ctx.http).await.unwrap();
+		interaction.defer(&ctx.http).await.unwrap();
 
 		let result = match interaction.data.name.as_str() {
 			"clear" => commands::clear::run(ctx, interaction).await,
@@ -42,8 +34,8 @@ impl EventHandler for Handler {
 		println!("{} is listening to {} guilds!", ready.user.name, ready.guilds.len());
 	}
 
-	async fn voice_state_update(&self, ctx: Context, _: Option<GuildId>, _: Option<VoiceState>, state: VoiceState) {
-		if state.user_id != ctx.cache.current_user_id().await || state.channel_id.is_some() {
+	async fn voice_state_update(&self, ctx: Context, _: Option<VoiceState>, state: VoiceState) {
+		if state.user_id != ctx.cache.current_user_id() || state.channel_id.is_some() {
 			return;
 		}
 

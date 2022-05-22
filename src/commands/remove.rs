@@ -1,34 +1,41 @@
 use super::prelude::*;
 
-pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> CommandResult {
+pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result {
 	let call = crate::get_call!(ctx, interaction);
+
+	if call.lock().await.queue().is_empty() {
+		return interaction.reply(&ctx, replies::EMPTY_QUEUE).await;
+	}
 
 	let option = interaction.data.options.get(0).unwrap();
 
-	let position: usize = match option.value.as_ref().unwrap().as_u64().and_then(|e| e.try_into().ok()) {
-		Some(position) if position >= 1 => position,
-		_ => return interaction.reply(&ctx.http, replies::INVALID_POSITION).await,
+	let position: usize = match option.value.as_ref().unwrap().as_i64().unwrap().try_into() {
+		Ok(position) => position,
+		Err(_) => return interaction.reply(&ctx, replies::INVALID_POSITION).await,
 	};
 
-	let content = {
+	let handle = {
 		let call = call.lock().await;
 
-		let handle = if position == 1 {
-			call.queue().current()
+		if position == 1 {
+			let handle = call.queue().current();
+
+			if let Some(handle) = &handle {
+				handle.stop().unwrap();
+			}
+
+			handle
 		} else {
 			call.queue().dequeue(position - 1).map(|e| e.handle())
-		};
-
-		match handle {
-			Some(removed) => {
-				if position == 1 {
-					removed.stop().unwrap();
-				}
-				replies::removed_song(removed.metadata().title.as_ref().unwrap())
-			}
-			None => replies::INVALID_POSITION.into(),
 		}
 	};
 
-	interaction.reply(&ctx.http, content).await
+	let handle = match handle {
+		Some(handle) => handle,
+		None => return interaction.reply(&ctx, replies::INVALID_POSITION).await,
+	};
+
+	interaction
+		.embed(&ctx, replies::track_embed(&handle, "Removed from the Queue"))
+		.await
 }
