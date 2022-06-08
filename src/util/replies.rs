@@ -38,17 +38,18 @@ fn format_time(seconds: u64) -> String {
 	}
 }
 
-pub fn queue_embed(queue: &[TrackHandle]) -> impl FnOnce(&mut CreateEmbed) -> &mut CreateEmbed {
+pub fn queue_embed(queue: &[TrackHandle]) -> CreateEmbed {
 	let vec: Vec<_> = queue.iter().enumerate().map(format_queue_element).collect();
 	let description = vec.join("\n");
 
-	|embed| embed.title("Queue").description(description)
+	let mut embed = CreateEmbed::default();
+
+	embed.title("Queue").description(description);
+
+	embed
 }
 
-pub fn track_embed<'a>(
-	handle: &'a TrackHandle,
-	title: &'a str,
-) -> impl FnOnce(&mut CreateEmbed) -> &mut CreateEmbed + 'a {
+pub fn track_embed(handle: &TrackHandle, title: &str) -> CreateEmbed {
 	let metadata = handle.metadata();
 	let thumbnail = handle.metadata().thumbnail.as_ref().unwrap();
 
@@ -60,13 +61,14 @@ pub fn track_embed<'a>(
 		format!("[{}]({}) ({})", title, url, format_time(duration))
 	};
 
-	move |embed| embed.title(title).thumbnail(thumbnail).description(description)
+	let mut embed = CreateEmbed::default();
+
+	embed.title(title).thumbnail(thumbnail).description(description);
+
+	embed
 }
 
-pub async fn track_embed_position<'a>(
-	handle: &'a TrackHandle,
-	title: &'a str,
-) -> impl FnOnce(&mut CreateEmbed) -> &mut CreateEmbed + 'a {
+pub async fn track_embed_position(handle: &TrackHandle, title: &str) -> CreateEmbed {
 	let metadata = handle.metadata();
 	let thumbnail = handle.metadata().thumbnail.as_ref().unwrap();
 
@@ -85,5 +87,9 @@ pub async fn track_embed_position<'a>(
 		)
 	};
 
-	move |embed| embed.title(title).thumbnail(thumbnail).description(description)
+	let mut embed = CreateEmbed::default();
+
+	embed.title(title).thumbnail(thumbnail).description(description);
+
+	embed
 }

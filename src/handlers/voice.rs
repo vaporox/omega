@@ -23,18 +23,15 @@ impl EventHandler for VoiceHandler {
 		if let Some(handle) = self.call.lock().await.queue().current() {
 			let user_id = self.cache.current_user_id();
 			let member = self.cache.member(self.guild_id, user_id).unwrap();
-			let colour = member.colour(&self.cache);
+
+			let mut embed = replies::track_embed(&handle, "Now Playing");
+
+			if let Some(colour) = member.colour(&self.cache) {
+				embed.colour(colour);
+			}
 
 			self.channel_id
-				.send_message(&self.http, |message| {
-					message.embed(|embed| {
-						if let Some(colour) = colour {
-							embed.colour(colour);
-						}
-
-						replies::track_embed(&handle, "Now Playing")(embed)
-					})
-				})
+				.send_message(&self.http, |message| message.set_embed(embed))
 				.await
 				.unwrap();
 		}
