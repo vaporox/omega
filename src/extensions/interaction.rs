@@ -6,13 +6,13 @@ use serenity::model::application::interaction::application_command::ApplicationC
 use crate::commands::prelude::Result;
 
 #[async_trait]
-pub trait InteractionHelpers {
+pub trait ApplicationCommandInteractionExt {
 	async fn embed<F: FnOnce(&mut CreateEmbed) -> &mut CreateEmbed + Send>(&self, ctx: &Context, f: F) -> Result;
 	async fn reply<T: Into<String> + Send>(&self, ctx: &Context, content: T) -> Result;
 }
 
 #[async_trait]
-impl InteractionHelpers for ApplicationCommandInteraction {
+impl ApplicationCommandInteractionExt for ApplicationCommandInteraction {
 	async fn embed<F: FnOnce(&mut CreateEmbed) -> &mut CreateEmbed + Send>(&self, ctx: &Context, f: F) -> Result {
 		let guild_id = self.guild_id.unwrap();
 		let user_id = ctx.cache.current_user_id();

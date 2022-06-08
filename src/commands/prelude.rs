@@ -4,8 +4,8 @@ use serenity::model::channel::Message;
 use serenity::Result as SerenityResult;
 pub use songbird::{input, Event, TrackEvent};
 
+pub use crate::extensions::{ApplicationCommandInteractionExt, MemberExt};
 pub use crate::handlers::VoiceHandler;
-pub use crate::helpers::{InteractionHelpers, MemberHelpers};
 pub use crate::util::replies;
 
 pub type Result = SerenityResult<Message>;
