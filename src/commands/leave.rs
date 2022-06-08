@@ -4,10 +4,7 @@ pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Re
 	let guild_id = interaction.guild_id.unwrap();
 	let user_id = ctx.cache.current_user_id();
 
-	let connected = ctx
-		.cache
-		.guild_field(guild_id, |guild| guild.voice_states.contains_key(&user_id))
-		.unwrap();
+	let connected = ctx.cache.guild(guild_id).unwrap().voice_states.contains_key(&user_id);
 
 	let content = if connected {
 		let manager = songbird::get(&ctx).await.unwrap();
