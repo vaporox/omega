@@ -1,6 +1,6 @@
 use super::prelude::*;
 
-pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result {
+pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<Message> {
 	let guild_id = interaction.guild_id.unwrap();
 
 	let voice_channel_id = match interaction.member.as_ref().unwrap().voice_channel_id(&ctx.cache) {

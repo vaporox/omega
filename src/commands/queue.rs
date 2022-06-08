@@ -1,6 +1,6 @@
 use super::prelude::*;
 
-pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result {
+pub async fn run(ctx: Context, interaction: ApplicationCommandInteraction) -> Result<Message> {
 	let call = crate::get_call!(ctx, interaction);
 
 	let queue = call.lock().await.queue().current_queue();
