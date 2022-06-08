@@ -1,11 +1,13 @@
-use crate::util::replies;
+use std::sync::Arc;
+
 use serenity::async_trait;
 use serenity::client::Cache;
 use serenity::http::Http;
 use serenity::model::id::{ChannelId, GuildId};
 use songbird::{Call, Event, EventContext, EventHandler};
-use std::sync::Arc;
 use tokio::sync::Mutex;
+
+use crate::util::replies;
 
 pub struct VoiceHandler {
 	pub cache: Arc<Cache>,

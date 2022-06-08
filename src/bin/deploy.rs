@@ -1,7 +1,8 @@
-use serde_json::Value;
-use serenity::http::Http;
 use std::env;
 use std::error::Error;
+
+use serde_json::Value;
+use serenity::http::Http;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

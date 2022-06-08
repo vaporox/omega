@@ -3,12 +3,13 @@ mod handlers;
 mod helpers;
 mod util;
 
+use std::env;
+use std::error::Error;
+
 use handlers::Handler;
 use serenity::client::Client;
 use serenity::model::gateway::GatewayIntents;
 use songbird::SerenityInit;
-use std::env;
-use std::error::Error;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {

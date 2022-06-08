@@ -1,8 +1,9 @@
-use crate::commands::prelude::Result;
 use serenity::async_trait;
 use serenity::builder::CreateEmbed;
 use serenity::client::Context;
 use serenity::model::application::interaction::application_command::ApplicationCommandInteraction;
+
+use crate::commands::prelude::Result;
 
 #[async_trait]
 pub trait InteractionHelpers {

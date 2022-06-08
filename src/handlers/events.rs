@@ -1,9 +1,10 @@
-use crate::commands;
 use serenity::async_trait;
 use serenity::client::{Context, EventHandler};
 use serenity::model::application::interaction::Interaction;
 use serenity::model::gateway::{Activity, Ready};
 use serenity::model::voice::VoiceState;
+
+use crate::commands;
 
 pub struct Handler;
 
